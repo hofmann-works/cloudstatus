@@ -1,10 +1,9 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hofmann-works/cloudstatus/config"
+	"github.com/hofmann-works/cloudstatus/handlers"
 )
 
 func main() {
@@ -14,9 +13,7 @@ func main() {
 	router := gin.Default()
 
 	v1 := router.Group("v1")
-	v1.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, "pong")
-	})
+	v1.GET("/status", handlers.Status)
 
 	router.Run(":8080")
 }
