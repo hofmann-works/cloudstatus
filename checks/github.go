@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/hofmann-works/cloudstatus/config"
+	"github.com/hofmann-works/cloudstatus/db"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -24,7 +25,7 @@ type GitHubResponse struct {
 	}
 }
 
-func GitHubStatus() {
+func GitHubStatus(database db.Database) {
 	GitHubStatusURL := config.New().GitHubStatusURL
 	response, err := http.Get(GitHubStatusURL)
 	if err != nil {
