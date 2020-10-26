@@ -6,12 +6,16 @@ import (
 )
 
 type Config struct {
-	PollInterval int
+	PollInterval    int
+	AzureStatusURL  string
+	GitHubStatusURL string
 }
 
 func New() *Config {
 	return &Config{
-		PollInterval: getEnvAsInt("CLOUDSTATUS_PollInterval", 30),
+		PollInterval:    getEnvAsInt("CLOUDSTATUS_PollInterval", 3),
+		AzureStatusURL:  getEnv("CLOUDSTATUS_AzureStatusURL", "https://status.dev.azure.com/_apis/status/health?geographies=EU,US&api-version=6.0-preview.1"),
+		GitHubStatusURL: getEnv("CloudStatus_GitHubStatusURL", "https://kctbh9vrtdwd.statuspage.io/api/v2/summary.json"),
 	}
 }
 
