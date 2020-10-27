@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/hofmann-works/cloudstatus/config"
 	"github.com/hofmann-works/cloudstatus/db"
+	"github.com/hofmann-works/cloudstatus/models"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -37,6 +38,27 @@ func GitHubStatus(database db.Database) {
 		if err != nil {
 			fmt.Println(err)
 		}
-		fmt.Println(githubresponse.Page.Updated_at, githubresponse.Components[1].Name)
+
+		unhelathyServices := []string{}
+
+		for _, service := range githubresponse.Components {
+			if service.Status != "operational" {
+				unhelathyServices = append(unhelathyServices, service.Name)
+			}
+		}
+
+		check := &models.Check{Cloud: "GitHub", LastUpdated: githubresponse.Page.Updated_at}
+		service := &models.Service{}
+		database.AddCheck(check)
+		if check.ID == 0 {
+			//check already exist
+			return
+		} else {
+			service.Check_id = check.ID
+			for _, unhealthyService := range unhelathyServices {
+				service.Name = unhealthyService
+				database.AddService(service)
+			}
+		}
 	}
 }

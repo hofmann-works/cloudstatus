@@ -44,10 +44,40 @@ func AzureStatus(database db.Database) {
 		fmt.Println(err)
 	}
 
-	if azresponse.Status.Health == "healthy" {
+	/*if azresponse.Status.Health == "healthy" {
 		check := &models.Check{Cloud: "Azure", LastUpdated: azresponse.LastUpdated}
 		database.AddCheck(check)
 		fmt.Println("ID:", check.ID)
+	}*/
+	serviceIsUnhealthy := false
+	unhelathyServices := []string{}
+
+	for _, service := range azresponse.Services {
+
+		for _, geopgraphy := range service.Geographies {
+			if geopgraphy.Health != "healthy" {
+				serviceIsUnhealthy = true
+			}
+		}
+
+		if serviceIsUnhealthy {
+			unhelathyServices = append(unhelathyServices, service.Id)
+			serviceIsUnhealthy = false
+		}
+	}
+
+	check := &models.Check{Cloud: "Azure", LastUpdated: azresponse.LastUpdated}
+	service := &models.Service{}
+	database.AddCheck(check)
+	if check.ID == 0 {
+		//check already exist
+		return
+	} else {
+		service.Check_id = check.ID
+		for _, unhealthyService := range unhelathyServices {
+			service.Name = unhealthyService
+			database.AddService(service)
+		}
 	}
 
 }
