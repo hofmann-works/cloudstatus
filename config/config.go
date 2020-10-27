@@ -9,13 +9,23 @@ type Config struct {
 	PollInterval    int
 	AzureStatusURL  string
 	GitHubStatusURL string
+	PGHost          string
+	PGPort          int
+	PGDatabase      string
+	PGUser          string
+	PGPassword      string
 }
 
 func New() *Config {
 	return &Config{
-		PollInterval:    getEnvAsInt("CLOUDSTATUS_PollInterval", 3),
+		PollInterval:    getEnvAsInt("CLOUDSTATUS_PollInterval", 10),
 		AzureStatusURL:  getEnv("CLOUDSTATUS_AzureStatusURL", "https://status.dev.azure.com/_apis/status/health?geographies=EU,US&api-version=6.0-preview.1"),
-		GitHubStatusURL: getEnv("CloudStatus_GitHubStatusURL", "https://kctbh9vrtdwd.statuspage.io/api/v2/summary.json"),
+		GitHubStatusURL: getEnv("CLOUDSTATUS_GitHubStatusURL", "https://kctbh9vrtdwd.statuspage.io/api/v2/summary.json"),
+		PGHost:          getEnv("CLOUDSTATUS_PGHost", "localhost"),
+		PGPort:          getEnvAsInt("CLOUDSTATUS_PGPort", 5432),
+		PGDatabase:      getEnv("CLOUDSTATUS_PGDatabase", "cloudstatus"),
+		PGUser:          getEnv("CLOUDSTATUS_PGUser", "cloudstatus"),
+		PGPassword:      getEnv("CLOUDSTATUS_PGPassword", "mypw"),
 	}
 }
 

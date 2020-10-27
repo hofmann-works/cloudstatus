@@ -39,16 +39,14 @@ func AzureStatus(database db.Database) {
 
 	data, _ := ioutil.ReadAll(response.Body)
 
+	//fakedata
+	//data = []byte(`{"lastUpdated":"2020-10-21T07:15:04.703Z","status":{"health":"healthy","message":"Everything is looking good"},"services":[{"id":"Core services","geographies":[{"id":"US","name":"United States","health":"healthy"},{"id":"EU","name":"Europe","health":"healthy"}]},{"id":"Boards","geographies":[{"id":"US","name":"United States","health":"healthy"},{"id":"EU","name":"Europe","health":"healthy"}]},{"id":"Repos","geographies":[{"id":"US","name":"United States","health":"healthy"},{"id":"EU","name":"Europe","health":"unhealthy"}]},{"id":"Pipelines","geographies":[{"id":"US","name":"United States","health":"unhealthy"},{"id":"EU","name":"Europe","health":"healthy"}]},{"id":"Test Plans","geographies":[{"id":"US","name":"United States","health":"healthy"},{"id":"EU","name":"Europe","health":"healthy"}]},{"id":"Artifacts","geographies":[{"id":"US","name":"United States","health":"healthy"},{"id":"EU","name":"Europe","health":"healthy"}]},{"id":"Other services","geographies":[{"id":"US","name":"United States","health":"healthy"},{"id":"EU","name":"Europe","health":"healthy"}]}]}`)
+
 	err = json.Unmarshal([]byte(data), &azresponse)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	/*if azresponse.Status.Health == "healthy" {
-		check := &models.Check{Cloud: "Azure", LastUpdated: azresponse.LastUpdated}
-		database.AddCheck(check)
-		fmt.Println("ID:", check.ID)
-	}*/
 	serviceIsUnhealthy := false
 	unhelathyServices := []string{}
 

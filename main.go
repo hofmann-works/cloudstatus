@@ -14,7 +14,7 @@ import (
 func main() {
 	var conf = config.New()
 
-	database, err := db.Init("localhost", 5432, "cloudstatus", "cloudstatus", "mypw")
+	database, err := db.Init(conf.PGHost, conf.PGPort, conf.PGDatabase, conf.PGUser, conf.PGPassword)
 	if err != nil {
 		fmt.Println("Could not set up database: %v", err)
 	}

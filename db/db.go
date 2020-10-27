@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/hofmann-works/cloudstatus/models"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"log"
 )
 
@@ -41,6 +41,12 @@ func createTables(db Database) {
 	if err != nil {
 		panic(err)
 	}
+
+	_, err = db.Conn.Exec("CREATE OR REPLACE VIEW latestchecks AS SELECT t.id, t.lastUpdated, t.cloud, s.servicename_array FROM (SELECT DISTINCT on (cloud) * FROM checks ORDER BY cloud, lastUpdated DESC) t LEFT JOIN (SELECT services.check_id AS id,array_agg(services.name) as servicename_array FROM services GROUP BY services.check_id) s USING (id)")
+	if err != nil {
+		panic(err)
+	}
+
 }
 
 func (db Database) AddCheck(check *models.Check) error {
@@ -64,11 +70,23 @@ func (db Database) AddService(service *models.Service) error {
 	return nil
 }
 
-func (db Database) GetNewestCheck() (models.Check, error) {
-	check := models.Check{}
+func (db Database) GetLatestChecks() (models.StatusResponse, error) {
+	response := models.StatusResponse{}
 
-	query := `SELECT * FROM checks ORDER BY lastUpdated DESC LIMIT 1;`
-	row := db.Conn.QueryRow(query)
-	err := row.Scan(&check.ID, &check.Cloud, &check.LastUpdated)
-	return check, err
+	rows, err := db.Conn.Query("SELECT cloud,lastupdated,servicename_array FROM latestchecks")
+	if err != nil {
+		return response, err
+	}
+
+	for rows.Next() {
+		cloud := models.Cloud{}
+		err := rows.Scan(&cloud.Name, &cloud.LastUpdated, pq.Array(&cloud.UnhealthyServices))
+		if err != nil {
+			return response, err
+		}
+		fmt.Println("name:", cloud.Name)
+		response.Clouds = append(response.Clouds, cloud)
+	}
+
+	return response, nil
 }
