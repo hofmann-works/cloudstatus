@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"github.com/hofmann-works/cloudstatus/db"
+	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -16,7 +16,7 @@ func main() {
 
 	database, err := db.Init(conf.PGHost, conf.PGPort, conf.PGDatabase, conf.PGUser, conf.PGPassword)
 	if err != nil {
-		fmt.Println("Could not set up database: %v", err)
+		log.Fatal("Could not set up database: ", err)
 	}
 	defer database.Conn.Close()
 
@@ -36,6 +36,7 @@ func main() {
 
 func pollStatus(pollInterval int, database db.Database) {
 	for range time.Tick(time.Second * time.Duration(pollInterval)) {
+		log.Println("Polling Cloud Status...")
 		checks.AzureStatus(database)
 		checks.GitHubStatus(database)
 	}

@@ -50,9 +50,13 @@ func createTables(db Database) {
 }
 
 func (db Database) AddCheck(check *models.Check) error {
+	err := db.Conn.Ping()
+	if err != nil {
+		log.Printf("Could not reach database: %s\n", err)
+	}
 	var id int64
 	query := `INSERT INTO checks (cloud, lastUpdated) VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING id`
-	err := db.Conn.QueryRow(query, check.Cloud, check.LastUpdated).Scan(&id)
+	err = db.Conn.QueryRow(query, check.Cloud, check.LastUpdated).Scan(&id)
 	if err != nil {
 		return err
 	}
@@ -62,8 +66,13 @@ func (db Database) AddCheck(check *models.Check) error {
 }
 
 func (db Database) AddService(service *models.Service) error {
+	err := db.Conn.Ping()
+	if err != nil {
+		log.Printf("Could not reach database: %s\n", err)
+	}
+
 	query := `INSERT INTO services (check_id, name) VALUES ($1, $2) ON CONFLICT DO NOTHING `
-	_, err := db.Conn.Exec(query, service.Check_id, service.Name)
+	_, err = db.Conn.Exec(query, service.Check_id, service.Name)
 	if err != nil {
 		panic(err)
 	}
@@ -71,6 +80,11 @@ func (db Database) AddService(service *models.Service) error {
 }
 
 func (db Database) GetLatestChecks() (models.StatusResponse, error) {
+	err := db.Conn.Ping()
+	if err != nil {
+		log.Printf("Could not reach database: %s\n", err)
+	}
+
 	response := models.StatusResponse{}
 
 	rows, err := db.Conn.Query("SELECT cloud,lastupdated,servicename_array FROM latestchecks")
@@ -84,7 +98,6 @@ func (db Database) GetLatestChecks() (models.StatusResponse, error) {
 		if err != nil {
 			return response, err
 		}
-		fmt.Println("name:", cloud.Name)
 		response.Clouds = append(response.Clouds, cloud)
 	}
 

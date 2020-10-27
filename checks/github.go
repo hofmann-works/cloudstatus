@@ -2,11 +2,11 @@ package checks
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/hofmann-works/cloudstatus/config"
 	"github.com/hofmann-works/cloudstatus/db"
 	"github.com/hofmann-works/cloudstatus/models"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -30,13 +30,13 @@ func GitHubStatus(database db.Database) {
 	GitHubStatusURL := config.New().GitHubStatusURL
 	response, err := http.Get(GitHubStatusURL)
 	if err != nil {
-		fmt.Printf("The HTTP request failed with error %s\n", err)
+		log.Printf("GitHub HTTP request failed with error %s\n", err)
 	} else {
 		data, _ := ioutil.ReadAll(response.Body)
 		var githubresponse GitHubResponse
 		err := json.Unmarshal([]byte(data), &githubresponse)
 		if err != nil {
-			fmt.Println(err)
+			log.Printf("Unmarshal GitHub HTTP response failed with error %s\n", err)
 		}
 
 		unhelathyServices := []string{}

@@ -2,11 +2,11 @@ package checks
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/hofmann-works/cloudstatus/config"
 	"github.com/hofmann-works/cloudstatus/db"
 	"github.com/hofmann-works/cloudstatus/models"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -33,7 +33,7 @@ func AzureStatus(database db.Database) {
 
 	response, err := http.Get(azureStatusURL)
 	if err != nil {
-		fmt.Printf("The HTTP request failed with error %s\n", err)
+		log.Printf("Azure HTTP request failed with error %s\n", err)
 		return
 	}
 
@@ -44,7 +44,7 @@ func AzureStatus(database db.Database) {
 
 	err = json.Unmarshal([]byte(data), &azresponse)
 	if err != nil {
-		fmt.Println(err)
+		log.Printf("Unmarshal Azure HTTP response failed with error %s\n", err)
 	}
 
 	serviceIsUnhealthy := false
