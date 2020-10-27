@@ -1,0 +1,30 @@
+version: '3'                                                                                                           
+services:
+  cloudstatus:
+    depends_on:
+      - postgres
+    image: robsy/cloudstatus:0.1
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      CLOUDSTATUS_PollInterval: 20
+      CLOUDSTATUS_PGHost: postgres
+      CLOUDSTATUS_PGDatabase: cloudstatusdb
+      CLOUDSTATUS_PGUser: cloudstatus
+      CLOUDSTATUS_PGPassword: mysecurepassword
+    networks:
+      - "cloudstatus"
+
+  postgres:
+    image: postgres:13.0-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: cloudstatusdb
+      POSTGRES_USER: cloudstatus
+      POSTGRES_PASSWORD: mysecurepassword
+    networks:
+      - "cloudstatus"
+
+networks:
+  cloudstatus:
