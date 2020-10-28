@@ -5,6 +5,7 @@ import (
 	"strconv"
 )
 
+// Config stores the App configuration
 type Config struct {
 	PollInterval    int
 	AzureStatusURL  string
@@ -16,9 +17,11 @@ type Config struct {
 	PGPassword      string
 }
 
+//New checks environment variables and sets Config.
+//If no environment variable is set, a default value is used.
 func New() *Config {
 	return &Config{
-		PollInterval:    getEnvAsInt("CLOUDSTATUS_PollInterval", 10),
+		PollInterval:    getEnvAsInt("CLOUDSTATUS_PollInterval", 100),
 		AzureStatusURL:  getEnv("CLOUDSTATUS_AzureStatusURL", "https://status.dev.azure.com/_apis/status/health?geographies=EU,US&api-version=6.0-preview.1"),
 		GitHubStatusURL: getEnv("CLOUDSTATUS_GitHubStatusURL", "https://kctbh9vrtdwd.statuspage.io/api/v2/summary.json"),
 		PGHost:          getEnv("CLOUDSTATUS_PGHost", "localhost"),

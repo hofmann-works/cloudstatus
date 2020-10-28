@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// An GitHubResponse represents the response of the GitHub Health Status API
 type GitHubResponse struct {
 	Page struct {
 		Id         string
@@ -26,6 +27,8 @@ type GitHubResponse struct {
 	}
 }
 
+// GitHubStatus calls the GitHub Health Status API,
+// parses the data and calls db/db.go to store a check and unhealthy services in the database.
 func GitHubStatus(database db.Database) {
 	GitHubStatusURL := config.New().GitHubStatusURL
 	response, err := http.Get(GitHubStatusURL)

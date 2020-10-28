@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// An AzResponse represents the response of the Azure Health Status API
 type AzResponse struct {
 	LastUpdated time.Time
 	Status      struct {
@@ -27,6 +28,8 @@ type AzResponse struct {
 	}
 }
 
+// AzureStatus calls the Azure Health Status API,
+// parses the data and calls db/db.go to store a check and unhealthy services in the database.
 func AzureStatus(database db.Database) {
 	azureStatusURL := config.New().AzureStatusURL
 	var azresponse AzResponse

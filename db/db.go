@@ -8,10 +8,12 @@ import (
 	"log"
 )
 
+// Database represents the db connection
 type Database struct {
 	Conn *sql.DB
 }
 
+//Init initializes the database connection
 func Init(host string, port int, database string, username string, password string) (Database, error) {
 	db := Database{}
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
@@ -42,6 +44,7 @@ func createTables(db Database) {
 		panic(err)
 	}
 
+	// View which contains latest checks joined with unhealthy services of every stored cloud
 	_, err = db.Conn.Exec("CREATE OR REPLACE VIEW latestchecks AS SELECT t.id, t.lastUpdated, t.cloud, s.servicename_array FROM (SELECT DISTINCT on (cloud) * FROM checks ORDER BY cloud, lastUpdated DESC) t LEFT JOIN (SELECT services.check_id AS id,array_agg(services.name) as servicename_array FROM services GROUP BY services.check_id) s USING (id)")
 	if err != nil {
 		panic(err)
@@ -49,6 +52,7 @@ func createTables(db Database) {
 
 }
 
+// AddCheck inserts a new check into the checks table and add its ID to the Check
 func (db Database) AddCheck(check *models.Check) error {
 	err := db.Conn.Ping()
 	if err != nil {
@@ -65,6 +69,7 @@ func (db Database) AddCheck(check *models.Check) error {
 	return nil
 }
 
+// AddService inserts a new service into the services table
 func (db Database) AddService(service *models.Service) error {
 	err := db.Conn.Ping()
 	if err != nil {
@@ -79,6 +84,7 @@ func (db Database) AddService(service *models.Service) error {
 	return nil
 }
 
+// GetLatestChecks returns a StatusResponse containing latest checks joined with unhealthy services of every stored cloud
 func (db Database) GetLatestChecks() (models.StatusResponse, error) {
 	err := db.Conn.Ping()
 	if err != nil {
