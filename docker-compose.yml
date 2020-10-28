@@ -3,7 +3,7 @@ services:
   cloudstatus:
     depends_on:
       - postgres
-    image: robsy/cloudstatus:0.1
+    image: robsy/cloudstatus:0.2
     restart: always
     ports:
       - "8080:8080"
